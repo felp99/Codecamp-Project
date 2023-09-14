@@ -20,7 +20,7 @@ class Todo:
         if self.args:
 
             if self.args.add:
-                self.args.add = " ".join(self.args.add)
+                #self.args.add = " ".join(self.args.add)
                 
                 self.adding_all_attrs()
 
@@ -125,7 +125,7 @@ class Log:
         self.check_if_exists_log_file()
 
     def check_if_exists_log_file(self):
-        if os.path.exists('./backup/.log'):
+        if os.path.exists('./backup/log.txt'):
             self.read_file()
         else:
             try:
@@ -139,39 +139,36 @@ class Log:
                 self.save_file(table=x)
 
     def read_file(self):
-        with open("./backup/.log", "r") as fp:
+        with open("./backup/log.txt", 'r') as fp:
             data = fp.read()
-            print(data)
-            self.mylog = from_csv(fp)
+            self.mylog = from_csv(fp, field_names=['datetime', 'action'],delimiter=',', lineterminator='\n')
 
     def save_file(self, table):
-        with open("./backup/.log", 'w') as f:
+        with open("./backup/log.txt", 'w') as f:
             data = table.get_csv_string()
             f.write(data)
 
     def add_log(self, action:str):
-        print('action: ', action)
-        self.mylog.add_row([datetime.datetime.now(), str(action)])
+        self.mylog.add_row([datetime.datetime.now().strftime("%H:%M:%S"), str(action)])
         self.save_file(self.mylog)
 
     def show(self):
         print(self.mylog)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='task', usage='%(prog)s [options]')
+    parser.add_argument('--add', help='adding a task', metavar=('task'))
+    parser.add_argument('--clear', help='clear all tasks', action='store_true')
+    parser.add_argument('--show', help='show all tasks', action='store_true')
+    parser.add_argument('--delete', help='delete task by id', type=int, metavar=('id'))
+    parser.add_argument('--modify', help='modify task by id', nargs=3, metavar=('id', 'column', 'value'))
+    parser.add_argument('--log', help='show log', action='store_true')
+
+    args = parser.parse_args()
+    
     while True:
         command_str = input("Input a command, q for quit: ")
         if command_str == "q":
             break
         else:
-            parser = argparse.ArgumentParser(prog='task', usage='%(prog)s [options]')
-            parser.add_argument("task", type=str, help="Task")
-            parser.add_argument('--add', nargs='*', help='adding a task', metavar=('task'))
-            parser.add_argument('--clear', help='clear all tasks', action='store_true')
-            parser.add_argument('--show', help='show all tasks', action='store_true')
-            parser.add_argument('--delete', help='delete task by id', type=int, metavar=('id'))
-            parser.add_argument('--modify', help='modify task by id', nargs=3, metavar=('id', 'column', 'value'))
-            parser.add_argument('--log', help='show log', action='store_true')
-
-            args = parser.parse_args(command_str.split())
-            print(args)
             t = Todo(args)
