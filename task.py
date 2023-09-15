@@ -125,7 +125,7 @@ class Log:
         self.check_if_exists_log_file()
 
     def check_if_exists_log_file(self):
-        if os.path.exists('./backup/log.txt'):
+        if os.path.exists('./backup/.log'):
             self.read_file()
         else:
             try:
@@ -139,12 +139,12 @@ class Log:
                 self.save_file(table=x)
 
     def read_file(self):
-        with open("./backup/log.txt", 'r') as fp:
+        with open("./backup/.log", 'r') as fp:
             data = fp.read()
             self.mylog = from_csv(fp, field_names=['datetime', 'action'],delimiter=',', lineterminator='\n')
 
     def save_file(self, table):
-        with open("./backup/log.txt", 'w') as f:
+        with open("./backup/.log", 'w') as f:
             data = table.get_csv_string()
             f.write(data)
 
